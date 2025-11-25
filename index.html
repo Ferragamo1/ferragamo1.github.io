@@ -4,12 +4,17 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Weekly 4-Quadrant Planner</title>
+
+  <!-- PWA stuff -->
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#020617" />
+
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <header class="top-bar">
     <h1>Weekly 4-Quadrant Planner</h1>
-    <p class="subtitle">Based on 7 Habits • Focus on what actually matters</p>
+    <p class="subtitle">Based on 7 Habits, sorted by urgency and importance</p>
     <p class="week-display" id="weekDisplay"></p>
   </header>
 
@@ -70,32 +75,32 @@
 
     <section class="card quadrant q1">
       <h2>Quadrant 1: Urgent + Important</h2>
-      <p class="quad-desc">Crucial fires, deadlines, high-stakes work.</p>
+      <p class="quad-desc">Critical tasks with real consequences.</p>
       <div id="q1Tasks" class="tasks-list"></div>
     </section>
 
     <section class="card quadrant q2">
       <h2>Quadrant 2: Less Urgent + Important</h2>
-      <p class="quad-desc">Planning, workouts, studying ahead.</p>
+      <p class="quad-desc">Planning, workouts, deep study, long term moves.</p>
       <div id="q2Tasks" class="tasks-list"></div>
     </section>
 
     <section class="card quadrant q3">
       <h2>Quadrant 3: Urgent + Less Important</h2>
-      <p class="quad-desc">Interruptions, noise, distractions.</p>
+      <p class="quad-desc">Interruptions and noise that feel urgent.</p>
       <div id="q3Tasks" class="tasks-list"></div>
     </section>
 
     <section class="card quadrant q4">
       <h2>Quadrant 4: Less Urgent + Less Important</h2>
-      <p class="quad-desc">TikTok doomscrolling zone.</p>
+      <p class="quad-desc">Scroll zone and low value activities.</p>
       <div id="q4Tasks" class="tasks-list"></div>
     </section>
 
   </main>
 
   <footer class="footer">
-    <p>Tasks reset automatically each new week.</p>
+    <p>Tasks reset automatically each new week. Data is stored locally on this device.</p>
   </footer>
 
   <script>
@@ -136,7 +141,7 @@
       ];
       const monthName = monthNames[monthIndex];
 
-      const weekOfMonth = Math.floor((date - 1) / 7) + 1;  
+      const weekOfMonth = Math.floor((date - 1) / 7) + 1;
       const label = ordinal(weekOfMonth) + " week of " + monthName + " " + year;
       const id = year + "-" + (monthIndex + 1) + "-w" + weekOfMonth;
 
@@ -312,6 +317,16 @@
 
     loadFromStorage();
     renderTasks();
+  </script>
+
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker
+          .register("sw.js")
+          .catch((err) => console.log("Service worker registration failed", err));
+      });
+    }
   </script>
 </body>
 </html>
