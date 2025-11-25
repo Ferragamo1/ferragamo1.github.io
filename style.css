@@ -9,6 +9,7 @@ body {
   background: #020617;
   color: #e5e7eb;
   padding: 16px;
+  font-size: 16px;
 }
 
 .top-bar {
@@ -17,7 +18,7 @@ body {
 }
 
 .top-bar h1 {
-  font-size: 1.6rem;
+  font-size: 1.7rem;
   margin-bottom: 4px;
 }
 
@@ -28,7 +29,8 @@ body {
 
 .week-display {
   margin-top: 6px;
-  font-size: 0.9rem;
+  font-size: 1rem;
+  font-weight: 600;
   opacity: 0.9;
 }
 
@@ -95,10 +97,6 @@ button:hover {
   filter: brightness(1.1);
 }
 
-button:active {
-  transform: scale(0.98);
-}
-
 button[type="submit"] {
   background: #22c55e;
   color: #022c22;
@@ -115,35 +113,16 @@ button[type="submit"] {
   color: #fee2e2;
 }
 
-.quadrant h2 {
-  margin-bottom: 4px;
-  font-size: 1.1rem;
-}
+/* Quadrant Colors You Wanted */
+.q1 { border-left: 6px solid #16a34a; }  /* GREEN */
+.q2 { border-left: 6px solid #ea580c; }  /* ORANGE */
+.q3 { border-left: 6px solid #eab308; }  /* YELLOW */
+.q4 { border-left: 6px solid #dc2626; }  /* RED */
 
 .quad-desc {
   font-size: 0.8rem;
   opacity: 0.75;
   margin-bottom: 8px;
-}
-
-.q1 {
-  border-left: 4px solid #dc2626;
-  box-shadow: 0 0 20px rgba(220, 38, 38, 0.2);
-}
-
-.q2 {
-  border-left: 4px solid #ea580c;
-  box-shadow: 0 0 20px rgba(234, 88, 12, 0.2);
-}
-
-.q3 {
-  border-left: 4px solid #dc2626;
-  box-shadow: 0 0 20px rgba(220, 38, 38, 0.2);
-}
-
-.q4 {
-  border-left: 4px solid #ea580c;
-  box-shadow: 0 0 20px rgba(234, 88, 12, 0.2);
 }
 
 .tasks-list {
@@ -169,7 +148,6 @@ button[type="submit"] {
   opacity: 0.8;
   margin-bottom: 2px;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
 }
 
 .task-title {
@@ -179,7 +157,6 @@ button[type="submit"] {
 
 .task-badges {
   display: flex;
-  flex-wrap: wrap;
   gap: 4px;
   margin-bottom: 6px;
 }
@@ -191,43 +168,21 @@ button[type="submit"] {
   font-weight: 600;
 }
 
-/* Urgency colors */
-.urgency-urgent {
-  background: #dc2626;
-  color: #fef2f2;
-}
+/* Urgency badges */
+.urgency-urgent { background: #dc2626; color: #fff; }
+.urgency-less   { background: #ea580c; color: #fff; }
 
-.urgency-less {
-  background: #ea580c;
-  color: #fff7ed;
-}
-
-/* Importance colors */
-.importance-important {
-  background: #16a34a;
-  color: #ecfdf5;
-}
-
-.importance-less {
-  background: #eab308;
-  color: #fefce8;
-}
+/* Importance badges */
+.importance-important { background: #16a34a; color: #fff; }
+.importance-less      { background: #eab308; color: #000; }
 
 .task-actions {
   display: flex;
   gap: 6px;
-  flex-wrap: wrap;
 }
 
-.footer {
-  text-align: center;
-  margin-top: 10px;
-  font-size: 0.75rem;
-  opacity: 0.7;
-}
-
-/* Mobile first */
-@media (min-width: 768px) {
+/* Desktop grid */
+@media (min-width: 770px) {
   body {
     max-width: 900px;
     margin: 0 auto;
@@ -236,10 +191,6 @@ button[type="submit"] {
   .quadrants {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-  }
-
-  .quadrant.card {
-    margin-bottom: 0;
+    gap: 16px;
   }
 }
