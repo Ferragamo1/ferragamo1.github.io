@@ -54,4 +54,263 @@
           <select id="taskImportance" required>
             <option value="important">Important</option>
             <option value="less">Less important</option>
-          </
+          </select>
+        </label>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit">Save task</button>
+        <button type="button" id="clearFormBtn" class="secondary-btn">Clear form</button>
+      </div>
+    </form>
+  </section>
+
+  <main class="quadrants">
+
+    <section class="card quadrant q1">
+      <h2>Quadrant 1: Urgent + Important</h2>
+      <p class="quad-desc">Crises, deadlines, exams, real-life fires.</p>
+      <div id="q1Tasks" class="tasks-list"></div>
+    </section>
+
+    <section class="card quadrant q2">
+      <h2>Quadrant 2: Less Urgent + Important</h2>
+      <p class="quad-desc">Planning, deep work, gym, long-term moves.</p>
+      <div id="q2Tasks" class="tasks-list"></div>
+    </section>
+
+    <section class="card quadrant q3">
+      <h2>Quadrant 3: Urgent + Less Important</h2>
+      <p class="quad-desc">Interruptions, some messages, fake emergencies.</p>
+      <div id="q3Tasks" class="tasks-list"></div>
+    </section>
+
+    <section class="card quadrant q4">
+      <h2>Quadrant 4: Less Urgent + Less Important</h2>
+      <p class="quad-desc">Mindless scrolling, random distractions.</p>
+      <div id="q4Tasks" class="tasks-list"></div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <p>Tasks reset automatically each new week. Data is saved locally on this device.</p>
+  </footer>
+
+  <script>
+    const STORAGE_KEY = "weeklyMatrixTasks";
+    const WEEK_ID_KEY = "weeklyMatrixWeekId";
+
+    let tasks = [];
+
+    const weekDisplay = document.getElementById("weekDisplay");
+    const taskForm = document.getElementById("taskForm");
+    const taskIdField = document.getElementById("taskId");
+    const taskTitleField = document.getElementById("taskTitle");
+    const taskDayField = document.getElementById("taskDay");
+    const taskUrgencyField = document.getElementById("taskUrgency");
+    const taskImportanceField = document.getElementById("taskImportance");
+    const clearFormBtn = document.getElementById("clearFormBtn");
+
+    const q1Container = document.getElementById("q1Tasks");
+    const q2Container = document.getElementById("q2Tasks");
+    const q3Container = document.getElementById("q3Tasks");
+    const q4Container = document.getElementById("q4Tasks");
+
+    function ordinal(n) {
+      const s = ["th", "st", "nd", "rd"];
+      const v = n % 100;
+      return n + (s[(v - 20) % 10] || s[v] || s[0]);
+    }
+
+    function getCurrentWeekInfo() {
+      const now = new Date();
+      const year = now.getFullYear();
+      const monthIndex = now.getMonth();
+      const date = now.getDate();
+
+      const monthNames = [
+        "January","February","March","April","May","June",
+        "July","August","September","October","November","December"
+      ];
+      const monthName = monthNames[monthIndex];
+
+      const weekOfMonth = Math.floor((date - 1) / 7) + 1; // 1–5
+      const label = ordinal(weekOfMonth) + " week of " + monthName + " " + year;
+      const id = year + "-" + (monthIndex + 1) + "-w" + weekOfMonth;
+
+      return { label, id };
+    }
+
+    function loadFromStorage() {
+      const currentWeek = getCurrentWeekInfo();
+      weekDisplay.textContent = currentWeek.label;
+
+      const storedWeekId = localStorage.getItem(WEEK_ID_KEY);
+
+      if (storedWeekId !== currentWeek.id) {
+        tasks = [];
+        localStorage.setItem(WEEK_ID_KEY, currentWeek.id);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+        return;
+      }
+
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        try {
+          tasks = JSON.parse(stored);
+        } catch {
+          tasks = [];
+        }
+      }
+    }
+
+    function saveToStorage() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+    }
+
+    function renderTasks() {
+      q1Container.innerHTML = "";
+      q2Container.innerHTML = "";
+      q3Container.innerHTML = "";
+      q4Container.innerHTML = "";
+
+      const dayOrder = [
+        "Monday", "Tuesday", "Wednesday",
+        "Thursday", "Friday", "Saturday", "Sunday"
+      ];
+
+      const sorted = [...tasks].sort((a, b) => {
+        return dayOrder.indexOf(a.day) - dayOrder.indexOf(b.day);
+      });
+
+      sorted.forEach(task => {
+        const card = document.createElement("div");
+        card.className = "task-card" + (task.done ? " done" : "");
+
+        const dayLabel = document.createElement("div");
+        dayLabel.className = "task-day";
+        dayLabel.textContent = task.day;
+
+        const title = document.createElement("div");
+        title.className = "task-title";
+        title.textContent = task.title;
+
+        const badges = document.createElement("div");
+        badges.className = "task-badges";
+
+        const urgencyBadge = document.createElement("span");
+        urgencyBadge.className = "badge urgency-" + task.urgency;
+        urgencyBadge.textContent = task.urgency === "urgent" ? "Urgent" : "Less urgent";
+
+        const importanceBadge = document.createElement("span");
+        importanceBadge.className = "badge importance-" + task.importance;
+        importanceBadge.textContent = task.importance === "important" ? "Important" : "Less important";
+
+        badges.appendChild(urgencyBadge);
+        badges.appendChild(importanceBadge);
+
+        const actions = document.createElement("div");
+        actions.className = "task-actions";
+
+        const doneBtn = document.createElement("button");
+        doneBtn.type = "button";
+        doneBtn.textContent = task.done ? "Mark undone" : "Mark done";
+        doneBtn.addEventListener("click", () => {
+          task.done = !task.done;
+          saveToStorage();
+          renderTasks();
+        });
+
+        const editBtn = document.createElement("button");
+        editBtn.type = "button";
+        editBtn.className = "secondary-btn";
+        editBtn.textContent = "Edit";
+        editBtn.addEventListener("click", () => {
+          taskIdField.value = task.id;
+          taskTitleField.value = task.title;
+          taskDayField.value = task.day;
+          taskUrgencyField.value = task.urgency;
+          taskImportanceField.value = task.importance;
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.type = "button";
+        deleteBtn.className = "danger-btn";
+        deleteBtn.textContent = "Delete";
+        deleteBtn.addEventListener("click", () => {
+          tasks = tasks.filter(t => t.id !== task.id);
+          saveToStorage();
+          renderTasks();
+        });
+
+        actions.appendChild(doneBtn);
+        actions.appendChild(editBtn);
+        actions.appendChild(deleteBtn);
+
+        card.appendChild(dayLabel);
+        card.appendChild(title);
+        card.appendChild(badges);
+        card.appendChild(actions);
+
+        const isUrgent = task.urgency === "urgent";
+        const isImportant = task.importance === "important";
+
+        if (isUrgent && isImportant) {
+          q1Container.appendChild(card);
+        } else if (!isUrgent && isImportant) {
+          q2Container.appendChild(card);
+        } else if (isUrgent && !isImportant) {
+          q3Container.appendChild(card);
+        } else {
+          q4Container.appendChild(card);
+        }
+      });
+    }
+
+    taskForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const id = taskIdField.value;
+      const title = taskTitleField.value.trim();
+      const day = taskDayField.value;
+      const urgency = taskUrgencyField.value;
+      const importance = taskImportanceField.value;
+
+      if (!title || !day) return;
+
+      if (id) {
+        const existing = tasks.find(t => t.id === id);
+        if (existing) {
+          existing.title = title;
+          existing.day = day;
+          existing.urgency = urgency;
+          existing.importance = importance;
+        }
+      } else {
+        tasks.push({
+          id: String(Date.now()),
+          title,
+          day,
+          urgency,
+          importance,
+          done: false
+        });
+      }
+
+      saveToStorage();
+      renderTasks();
+      taskForm.reset();
+      taskIdField.value = "";
+    });
+
+    clearFormBtn.addEventListener("click", () => {
+      taskForm.reset();
+      taskIdField.value = "";
+    });
+
+    loadFromStorage();
+    renderTasks();
+  </script>
+</body>
+</html>
